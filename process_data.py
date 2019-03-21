@@ -9,15 +9,20 @@ import random
 from collections import defaultdict
 import pandas as pd
 from os.path import isfile
+import argparse
 
 import cv2
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-category')
+
 DATA_PATH = "./data/origin"
 list_data = pd.read_csv("./data/list.csv")
 list_df = pd.DataFrame(list_data)
+args = parser.parse_args()
 
 # 得到训练集所有id
 ids = set(list_df.loc[:, 'id'].values.tolist())
@@ -91,7 +96,6 @@ def split_train_validate(partition=0.2):
         train_dict[key] = val
     return train_dict, validate_dict
 
-train_dict, validate_dict = split_train_validate()
 
 def merge_img(data_dict, save_dir="./data", category="train"):
     record_list = []
@@ -130,6 +134,9 @@ def merge_img(data_dict, save_dir="./data", category="train"):
             else:
                 f.write(str(line).encode("utf-8"))
 
-
-# merge_img(validate_dict, category="val")
-merge_img(train_dict, category="train")
+if __name__ == '__main__':
+    train_dict, validate_dict = split_train_validate()
+    if args.category=="train":
+        merge_img(train_dict, category="train")
+    elif args.category=="val":
+        merge_img(validate_dict, category="train")
